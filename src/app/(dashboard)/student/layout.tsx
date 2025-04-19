@@ -15,8 +15,8 @@ export default function StudentLayout({
                 <div className="container mx-auto px-4">
                     <div className="flex space-x-6 h-14 items-center">
                         <Link
-                            href="/student/my-courses"
-                            className={`text-sm font-medium transition-colors hover:text-primary ${pathname === '/student/my-courses'
+                            href="/student"
+                            className={`text-sm font-medium transition-colors hover:text-primary ${pathname === '/student'
                                 ? 'text-black border-b-2 border-black'
                                 : 'text-muted-foreground'
                                 }`}

@@ -7,6 +7,7 @@ interface CourseCardProps {
     onDelete: () => void;
     viewMode: 'list' | 'grid';
     onClick: () => void;
+    isTeacher?: boolean;
 }
 
 export function CourseCard({
@@ -17,10 +18,11 @@ export function CourseCard({
     onEdit,
     onDelete,
     viewMode,
-    onClick
+    onClick,
+    isTeacher = true
 }: CourseCardProps) {
     return (
-        <button onClick={onClick} className={`rounded-lg border cursor-pointer  shadow-sm justify-start ${viewMode === 'list' ? 'w-full flex' : 'w-full sm:w-[300px]'}`}>
+        <div onClick={onClick} className={`rounded-lg border cursor-pointer  shadow-sm justify-start ${viewMode === 'list' ? 'w-full flex' : 'w-full sm:w-[300px]'}`}>
             {thumbnail && (
                 <div className={`relative h-40 ${viewMode == "list" ? "w-[60px]" : "w-full"}`}>
                     <img
@@ -33,7 +35,7 @@ export function CourseCard({
             <div className="flex flex-col space-y-1.5 p-6">
                 <div className="flex items-center justify-between">
                     <h3 className="text-lg font-semibold leading-none tracking-tight">{title}</h3>
-                    <div className="relative">
+                    {isTeacher && <div className="relative">
                         <button
                             onClick={(e) => {
                                 e.stopPropagation();
@@ -77,11 +79,11 @@ export function CourseCard({
                                 </button>
                             </div>
                         </div>
-                    </div>
+                    </div>}
                 </div>
                 <p className="text-sm text-gray-500 line-clamp-2">{description}</p>
             </div>
-            <div className="p-6 pt-0">
+            {isTeacher && <div className="p-6 pt-0">
                 <div className="flex items-center space-x-1 text-sm text-gray-500">
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -101,7 +103,7 @@ export function CourseCard({
                     </svg>
                     <span>{studentCount} students</span>
                 </div>
-            </div>
-        </button>
+            </div>}
+        </div>
     );
 } 

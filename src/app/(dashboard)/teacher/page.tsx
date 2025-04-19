@@ -164,7 +164,7 @@ export default function DashboardPage() {
                         title={course.title}
                         description={course.description}
                         studentCount={course.studentCount}
-                        onClick={() => router.push(`/teacher/${course.id}`)}
+                        onClick={() => router.push(`/teacher/courses/${course.id}`)}
                         onEdit={() => handleEdit(course.id)}
                         onDelete={() => handleDelete(course.id)}
                         viewMode={viewMode}

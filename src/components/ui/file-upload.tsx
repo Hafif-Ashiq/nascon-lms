@@ -4,9 +4,10 @@ interface FileUploadProps {
     onFileSelect: (file: File) => void;
     currentFile?: string;
     className?: string;
+    type?: 'image' | 'video';
 }
 
-export function FileUpload({ onFileSelect, currentFile, className = "" }: FileUploadProps) {
+export function FileUpload({ onFileSelect, currentFile, className = "", type = 'image' }: FileUploadProps) {
     const [preview, setPreview] = React.useState<string | null>(currentFile || null);
     const [error, setError] = React.useState<string | null>(null);
     const fileInputRef = React.useRef<HTMLInputElement>(null);
@@ -16,25 +17,40 @@ export function FileUpload({ onFileSelect, currentFile, className = "" }: FileUp
         setError(null);
 
         if (file) {
-            // Check file type
-            const validTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+            // Check file type based on upload type
+            const validTypes = type === 'image'
+                ? ['image/jpeg', 'image/png', 'image/jpg']
+                : ['video/mp4', 'video/webm', 'video/ogg'];
+
             if (!validTypes.includes(file.type)) {
-                setError('Please upload a valid image file (JPEG, PNG, or JPG)');
+                setError(type === 'image'
+                    ? 'Please upload a valid image file (JPEG, PNG, or JPG)'
+                    : 'Please upload a valid video file (MP4, WebM, or OGG)'
+                );
                 return;
             }
 
-            // Check file size (max 5MB)
-            if (file.size > 5 * 1024 * 1024) {
-                setError('File size should be less than 5MB');
+            // Check file size (max 5MB for images, 100MB for videos)
+            const maxSize = type === 'image' ? 5 * 1024 * 1024 : 100 * 1024 * 1024;
+            if (file.size > maxSize) {
+                setError(type === 'image'
+                    ? 'File size should be less than 5MB'
+                    : 'File size should be less than 100MB'
+                );
                 return;
             }
 
             // Create preview
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setPreview(reader.result as string);
-            };
-            reader.readAsDataURL(file);
+            if (type === 'image') {
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    setPreview(reader.result as string);
+                };
+                reader.readAsDataURL(file);
+            } else if (type === 'video') {
+                const videoUrl = URL.createObjectURL(file);
+                setPreview(videoUrl);
+            }
 
             onFileSelect(file);
         }
@@ -50,7 +66,7 @@ export function FileUpload({ onFileSelect, currentFile, className = "" }: FileUp
                 type="file"
                 ref={fileInputRef}
                 onChange={handleFileChange}
-                accept=".jpg,.jpeg,.png"
+                accept={type === 'image' ? ".jpg,.jpeg,.png" : ".mp4,.webm,.ogg"}
                 className="hidden"
             />
             <div
@@ -59,13 +75,21 @@ export function FileUpload({ onFileSelect, currentFile, className = "" }: FileUp
             >
                 {preview ? (
                     <div className="relative">
-                        <img
-                            src={preview}
-                            alt="Preview"
-                            className="w-full h-48 object-cover rounded-lg"
-                        />
+                        {type === 'image' ? (
+                            <img
+                                src={preview}
+                                alt="Preview"
+                                className="w-full h-48 object-cover rounded-lg"
+                            />
+                        ) : (
+                            <video
+                                src={preview}
+                                className="w-full h-48 object-cover rounded-lg"
+                                controls
+                            />
+                        )}
                         <div className="absolute inset-0 bg-black bg-opacity-50 rounded-lg flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
-                            <span className="text-white">Click to change image</span>
+                            <span className="text-white">Click to change {type}</span>
                         </div>
                     </div>
                 ) : (
@@ -85,9 +109,14 @@ export function FileUpload({ onFileSelect, currentFile, className = "" }: FileUp
                             />
                         </svg>
                         <div className="text-sm text-gray-600">
-                            <span className="font-medium text-blue-600">Upload a file</span> or drag and drop
+                            <span className="font-medium text-blue-600">Upload a {type}</span> or drag and drop
                         </div>
-                        <p className="text-xs text-gray-500">PNG, JPG, JPEG up to 5MB</p>
+                        <p className="text-xs text-gray-500">
+                            {type === 'image'
+                                ? 'PNG, JPG, JPEG up to 5MB'
+                                : 'MP4, WebM, OGG up to 100MB'
+                            }
+                        </p>
                     </div>
                 )}
             </div>
@@ -96,4 +125,4 @@ export function FileUpload({ onFileSelect, currentFile, className = "" }: FileUp
             )}
         </div>
     );
-} 
+}

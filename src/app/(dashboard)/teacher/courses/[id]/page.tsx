@@ -2,7 +2,9 @@
 import { useState } from 'react';
 import { useParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
+import AddVideoModal from '@/components/AddVideoPopup';
 
+import { useRouter } from 'next/navigation';
 interface Video {
     id: number;
     title: string;
@@ -55,9 +57,18 @@ const mockCourse: Course = {
 };
 
 export default function CoursePage() {
+    const router = useRouter()
     const params = useParams();
     const [activeTab, setActiveTab] = useState<'videos' | 'students'>('videos');
     const course = mockCourse; // Replace with actual course data fetching
+    const [addVideoModalOpen, setAddVideoModalOpen] = useState(false);
+
+    const handleDeleteVideo = (videoId: number) => {
+        if (!confirm("Are you sure to delete this video")) return
+        // TODO: Implement actual delete functionality
+        // This should make an API call to delete the video
+        console.log('Deleting video:', videoId);
+    };
 
     return (
         <div className="container mx-auto py-8">
@@ -105,12 +116,12 @@ export default function CoursePage() {
                 {activeTab === 'videos' ? (
                     <div className='flex flex-col gap-[20px] '>
                         <div className='flex justify-end'>
-                            <Button className='cursor-pointer' onClick={() => { }}>Add New Video</Button>
+                            <Button className='cursor-pointer' onClick={() => { setAddVideoModalOpen(true) }}>Add New Video</Button>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             {course.videos.map((video) => (
-                                <div key={video.id} className="rounded-lg border shadow-sm overflow-hidden">
+                                <div key={video.id} className="rounded-lg border shadow-sm overflow-hidden group relative">
                                     <div className="relative h-48">
                                         <img
                                             src={video.thumbnail}
@@ -120,6 +131,28 @@ export default function CoursePage() {
                                         <div className="absolute bottom-2 right-2 bg-black bg-opacity-75 text-white px-2 py-1 rounded text-sm">
                                             {video.duration}
                                         </div>
+                                        {/* Delete Button */}
+                                        <button
+                                            onClick={() => handleDeleteVideo(video.id)}
+                                            className="absolute top-2 right-2 p-2 bg-red-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-red-600"
+                                            title="Delete video"
+                                        >
+                                            <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                width="16"
+                                                height="16"
+                                                viewBox="0 0 24 24"
+                                                fill="none"
+                                                stroke="white"
+                                                strokeWidth="2"
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                            >
+                                                <path d="M3 6h18"></path>
+                                                <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                                                <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+                                            </svg>
+                                        </button>
                                     </div>
                                     <div className="p-4">
                                         <h3 className="text-lg font-semibold mb-2">{video.title}</h3>
@@ -157,6 +190,7 @@ export default function CoursePage() {
                     </div>
                 )}
             </div>
+            <AddVideoModal isOpen={addVideoModalOpen} onClose={() => setAddVideoModalOpen(false)} onSubmit={() => { }} />
         </div>
     );
 } 

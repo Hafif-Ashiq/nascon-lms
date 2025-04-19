@@ -2,8 +2,6 @@
 
 import React, { useEffect, useState } from 'react';
 import { CourseCard } from '@/components/CourseCard';
-import { useRouter } from 'next/navigation';
-
 
 interface Course {
     id: string;
@@ -12,14 +10,15 @@ interface Course {
     thumbnail?: string;
 }
 
-const StudentDashboard = () => {
-    const router = useRouter()
-    const [enrolledCourses, setEnrolledCourses] = useState<Course[]>([]);
+const page = () => {
+    const [allCourses, setAllCourses] = useState<Course[]>([]);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [filteredCourses, setFilteredCourses] = useState<Course[]>([]);
 
     // TODO: Replace this with actual API call to fetch enrolled courses
     useEffect(() => {
         // Temporary mock data - replace with actual API call
-        const fetchEnrolledCourses = async () => {
+        const fetchAllCourses = async () => {
             // This should be replaced with your actual API endpoint
             const courses = [
                 {
@@ -30,17 +29,39 @@ const StudentDashboard = () => {
                 },
                 // Add more courses as needed
             ];
-            setEnrolledCourses(courses);
+            setAllCourses(courses);
+            setFilteredCourses(courses);
         };
 
-        fetchEnrolledCourses();
+        fetchAllCourses();
     }, []);
+
+    // Handle search functionality
+    useEffect(() => {
+        const filtered = allCourses.filter(course =>
+            course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            course.description.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+        setFilteredCourses(filtered);
+    }, [searchQuery, allCourses]);
 
     return (
         <div className="p-6">
-            <h1 className="text-2xl font-bold mb-6">My Enrolled Courses</h1>
+            <div className="mb-6 flex justify-between">
+                <h1 className="text-2xl font-bold mb-4">All Courses</h1>
+                <div className="relative min-w-[400px]">
+                    <input
+
+                        type="text"
+                        placeholder="Search courses..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                </div>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {enrolledCourses.map((course) => (
+                {filteredCourses.map((course) => (
                     <CourseCard
                         isTeacher={false}
                         key={course.id}
@@ -48,25 +69,22 @@ const StudentDashboard = () => {
                         description={course.description}
                         thumbnail={course.thumbnail}
                         viewMode="grid"
-                        studentCount={0} // This won't be shown
-                        onEdit={() => { }} // Empty function since we won't show edit
-                        onDelete={() => { }} // Empty function since we won't show delete
+                        studentCount={0}
+                        onEdit={() => { }}
+                        onDelete={() => { }}
                         onClick={() => {
-                            // Handle course click - navigate to course details
-                            // You can add navigation logic here
-                            router.push(`/student/courses/${course.id}`)
                             console.log(`Navigating to course: ${course.id}`);
                         }}
                     />
                 ))}
             </div>
-            {enrolledCourses.length === 0 && (
+            {filteredCourses.length === 0 && (
                 <div className="text-center text-gray-500 mt-8">
-                    No courses enrolled yet.
+                    {searchQuery ? 'No courses found matching your search.' : 'No courses available yet.'}
                 </div>
             )}
         </div>
     );
 };
 
-export default StudentDashboard;
+export default page;
