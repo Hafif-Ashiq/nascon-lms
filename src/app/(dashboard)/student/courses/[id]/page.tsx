@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import AddVideoModal from '@/components/AddVideoPopup';
+import { json } from 'stream/consumers';
 
 interface Video {
     id: number;
@@ -95,7 +96,11 @@ export default function CoursePage() {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {course.videos.map((video) => (
-                            <button onClick={() => { router.push(`/student/courses/${course.id}/videos/${video.id}`) }} key={video.id} className="rounded-lg border shadow-sm overflow-hidden cursor-pointer">
+                            <button onClick={() => {
+                                sessionStorage.setItem('video', JSON.stringify(video));
+                                router.push(`/student/courses/${course.id}/video`)
+
+                            }} key={video.id} className="rounded-lg border shadow-sm overflow-hidden cursor-pointer">
                                 <div className="relative h-48">
                                     <img
                                         src={video.thumbnail}

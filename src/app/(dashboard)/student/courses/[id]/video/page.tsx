@@ -17,7 +17,6 @@ interface CourseEnrollmentStatus {
 }
 
 const VideoPage = () => {
-    const params = useParams();
     const [videoData, setVideoData] = useState<VideoData | null>(null);
     const [isTranscriptExpanded, setIsTranscriptExpanded] = useState(false);
     const [enrollmentStatus, setEnrollmentStatus] = useState<CourseEnrollmentStatus>({ isEnrolled: true });
@@ -26,26 +25,22 @@ const VideoPage = () => {
     useEffect(() => {
         // TODO: Fetch video data and enrollment status from your API
         // This is mock data for demonstration
-        const mockVideoData = {
-            id: params.videoId as string,
-            title: "Introduction to the Course",
-            description: "In this video, we'll cover the basic concepts and course overview.",
-            videoUrl: "https://example.com/video.mp4",
-            transcription: "This is the video transcription. It contains the full text of what was said in the video..."
-        };
+        const video = sessionStorage.getItem('video');
+        const videoData = JSON.parse(video as string);
+        console.log(videoData);
+        setVideoData(videoData);
 
         const mockEnrollmentStatus = {
             isEnrolled: true // Set this based on your actual enrollment check
         };
 
-        setVideoData(mockVideoData);
         setEnrollmentStatus(mockEnrollmentStatus);
 
         // Show enrollment popup if not enrolled
         if (!mockEnrollmentStatus.isEnrolled) {
             setShowEnrollmentPopup(true);
         }
-    }, [params.videoId]);
+    }, []);
 
     if (!videoData) {
         return <div className="flex justify-center items-center min-h-screen">Loading...</div>;
