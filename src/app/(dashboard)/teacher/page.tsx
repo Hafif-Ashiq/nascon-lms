@@ -1,7 +1,8 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { CourseCard } from "@/components/CourseCard";
 import { useRouter } from 'next/navigation';
+import { API_URL } from '@/constants/links';
 
 
 interface Course {
@@ -45,12 +46,28 @@ export default function DashboardPage() {
             thumbnail: "https://images.unsplash.com/photo-1515879218367-8466d910aaa4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80"
         },
     ]);
+
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [editingCourse, setEditingCourse] = useState<Course | null>(null);
     const [formData, setFormData] = useState({
         title: '',
         description: '',
     });
+
+    useEffect(() => {
+        fetch(`${API_URL}/instructor/all-courses`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            }
+        }).then(res => res.json()).then(data => {
+            console.log(data);
+            setCourses(data);
+        }).catch(err => {
+            console.log(err);
+        })
+    }, [])
+
 
     const handleEdit = (courseId: number) => {
         const course = courses.find(c => c.id === courseId);
@@ -122,7 +139,7 @@ export default function DashboardPage() {
                                 <rect x="3" y="14" width="7" height="7" />
                             </svg>
                         </button>
-                        <button
+                        {/* <button
                             onClick={() => setViewMode('list')}
                             className={`p-2 rounded-md ${viewMode === 'list' ? 'bg-gray-100' : 'hover:bg-gray-100'
                                 }`}
@@ -145,7 +162,7 @@ export default function DashboardPage() {
                                 <line x1="3" y1="12" x2="3.01" y2="12" />
                                 <line x1="3" y1="18" x2="3.01" y2="18" />
                             </svg>
-                        </button>
+                        </button> */}
                     </div>
                     <button
                         onClick={handleAddCourse}

@@ -2,8 +2,11 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { FileUpload } from '@/components/ui/file-upload';
+import { API_URL } from '@/constants/links';
+import { useRouter } from 'next/navigation';
 
 const page = () => {
+    const router = useRouter();
     const [formData, setFormData] = useState({
         name: '',
         description: '',
@@ -13,7 +16,18 @@ const page = () => {
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         // Handle form submission here
-        console.log(formData);
+        fetch(`${API_URL}/instructor/add-course`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            },
+            body: JSON.stringify(formData)
+        }).then(res => res.json()).then(data => {
+            console.log(data);
+            router.push('/teacher');
+        }).catch(err => {
+            console.log(err);
+        })
     };
 
     const handleFileSelect = (file: File) => {

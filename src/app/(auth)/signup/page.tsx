@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { API_URL } from '@/constants/links';
 
 const SignupPage = () => {
     const router = useRouter();
@@ -60,9 +61,30 @@ const SignupPage = () => {
 
         if (validateForm()) {
             try {
-                // TODO: Implement actual signup logic here
-                console.log('Signup attempt:', formData);
-                router.push('/dashboard');
+                fetch(`${API_URL}/${formData.role == "student" ? "student" : "instructor"}/signup`, {
+                    method: 'POST',
+                    body: JSON.stringify(formData),
+                    mode: 'no-cors',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                }).then(res => res.json()).then(data => {
+                    if (data.success) {
+                        router.push(formData.role == 'student' ? '/student' : '/teacher');
+                    } else {
+                        setErrors(prev => ({
+                            ...prev,
+                            submit: data.message
+                        }));
+                    }
+                    console.log(data);
+                }).catch(err => {
+                    console.log(err);
+                    setErrors(prev => ({
+                        ...prev,
+                        submit: 'Failed to create account. Please try again.'
+                    }));
+                })
             } catch (err) {
                 setErrors(prev => ({
                     ...prev,

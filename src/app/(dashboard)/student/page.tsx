@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { CourseCard } from '@/components/CourseCard';
 import { useRouter } from 'next/navigation';
+import { API_URL } from '@/constants/links';
 
 
 interface Course {
@@ -21,16 +22,27 @@ const StudentDashboard = () => {
         // Temporary mock data - replace with actual API call
         const fetchEnrolledCourses = async () => {
             // This should be replaced with your actual API endpoint
-            const courses = [
-                {
-                    id: '1',
-                    title: 'Introduction to React',
-                    description: 'Learn the basics of React development',
-                    thumbnail: 'https://images.unsplash.com/photo-1515879218367-8466d910aaa4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80'
-                },
-                // Add more courses as needed
-            ];
-            setEnrolledCourses(courses);
+            fetch(`${API_URL}/student/enrolled`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
+            }).then(res => res.json()).then(data => {
+                console.log(data);
+                setEnrolledCourses(data);
+            }).catch(err => {
+                console.log(err);
+            })
+            // const courses = [
+            //     {
+            //         id: '1',
+            //         title: 'Introduction to React',
+            //         description: 'Learn the basics of React development',
+            //         thumbnail: 'https://images.unsplash.com/photo-1515879218367-8466d910aaa4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80'
+            //     },
+            //     // Add more courses as needed
+            // ];
+            // setEnrolledCourses(courses);
         };
 
         fetchEnrolledCourses();

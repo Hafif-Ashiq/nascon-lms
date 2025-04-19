@@ -1,10 +1,11 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import AddVideoModal from '@/components/AddVideoPopup';
 
 import { useRouter } from 'next/navigation';
+import { API_URL } from '@/constants/links';
 interface Video {
     id: number;
     title: string;
@@ -60,8 +61,22 @@ export default function CoursePage() {
     const router = useRouter()
     const params = useParams();
     const [activeTab, setActiveTab] = useState<'videos' | 'students'>('videos');
-    const course = mockCourse; // Replace with actual course data fetching
+    const [course, setCourse] = useState<Course>(mockCourse); // Replace with actual course data fetching
     const [addVideoModalOpen, setAddVideoModalOpen] = useState(false);
+
+    useEffect(() => {
+        fetch(`${API_URL}/instructor/all-courses/${params.id}`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            }
+        }).then(res => res.json()).then(data => {
+            console.log(data);
+            setCourse(data);
+        }).catch(err => {
+            console.log(err);
+        })
+    }, [])
 
     const handleDeleteVideo = (videoId: number) => {
         if (!confirm("Are you sure to delete this video")) return
